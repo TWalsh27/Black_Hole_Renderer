@@ -1,6 +1,4 @@
-//
-// Created by Tjwal on 8/8/2026.
-//
+// Last updated 8/10/26
 
 #ifndef UNTITLED1_RAY_H
 #define UNTITLED1_RAY_H

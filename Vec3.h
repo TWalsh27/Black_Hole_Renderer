@@ -1,6 +1,4 @@
-//
-// Created by Tjwal on 7/27/2026.
-//
+// Last updated 8/10/26
 
 #ifndef UNTITLED1_VEC3_H
 #define UNTITLED1_VEC3_H
