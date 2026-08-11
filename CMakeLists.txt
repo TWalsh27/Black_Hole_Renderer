@@ -3,14 +3,13 @@ project(untitled1)
 
 set(CMAKE_CXX_STANDARD 20)
 
-find_package(SDL2 CONFIG REQUIRED)
+find_package(SDL3 CONFIG REQUIRED)
 
-add_executable(untitled1 main.cpp
+add_executable(untitled1
+        main.cpp
         Window.cpp
         Window.h
         Vec3.cpp
-        Vec3.h
-        Ray.cpp
-        Ray.h)
+        Vec3.h)
 
-target_link_libraries(untitled1 PRIVATE SDL2::SDL2main SDL2::SDL2)
+target_link_libraries(untitled1 PRIVATE SDL3::SDL3)

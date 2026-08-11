@@ -20,27 +20,34 @@ Window::~Window()
 
 bool Window::initialize()
 {
-    if (SDL_Init(SDL_INIT_VIDEO) != 0)
+    if (!SDL_Init(SDL_INIT_VIDEO))
     {
-        std::cout << SDL_GetError() << std::endl;
+        std::cout << "SDL_Init failed: " << SDL_GetError() << std::endl;
         return false;
     }
 
     window = SDL_CreateWindow(
         title.c_str(),
-        SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED,
         width,
         height,
         0
     );
 
     if (!window)
+    {
+        std::cout << "SDL_CreateWindow failed: " << SDL_GetError() << std::endl;
         return false;
+    }
 
-    renderer = SDL_CreateRenderer(window, -1, 0);
+    renderer = SDL_CreateRenderer(window, nullptr);
 
-    return renderer != nullptr;
+    if (!renderer)
+    {
+        std::cout << "SDL_CreateRenderer failed: " << SDL_GetError() << std::endl;
+        return false;
+    }
+
+    return true;
 }
 
 void Window::clear()
@@ -59,7 +66,7 @@ bool Window::processEvents()
 
     while (SDL_PollEvent(&event))
     {
-        if (event.type == SDL_QUIT)
+        if (event.type == SDL_EVENT_QUIT)
             return false;
     }
 
