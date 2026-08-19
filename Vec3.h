@@ -13,15 +13,15 @@ private:
 
 public:
 
-    Vec3() {}
+    Vec3();
     Vec3(double x, double y, double z);
 
-    double getX() const;
-    double getY() const;
-    double getZ() const;
+    double get_x() const;
+    double get_y() const;
+    double get_z() const;
 
-    double getLength() const;
-    double getLengthSquared() const;
+    double get_length() const;
+    double get_length_squared() const;
 
     Vec3 add_vectors (const Vec3& other) const;
     Vec3 subtract_vectors (const Vec3& other) const;

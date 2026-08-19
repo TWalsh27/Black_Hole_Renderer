@@ -4,16 +4,18 @@
 
 // Constructors ----------------------------
 
+Ray::Ray() {}
+
 Ray::Ray(const Vec3& origin, const Vec3& direction) :
     origin(origin), direction(direction) {}
 
 // Getters ----------------------------------
 
-Vec3 Ray::getOrigin() const {
+Vec3 Ray::get_origin() const {
     return origin;
 }
 
-Vec3 Ray::getDirection() const {
+Vec3 Ray::get_direction() const {
     return direction;
 }
 
@@ -22,4 +24,3 @@ Vec3 Ray::getDirection() const {
 Vec3 Ray::at(double t) const {
     return origin + direction * t;
 }
-

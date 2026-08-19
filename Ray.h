@@ -14,11 +14,11 @@ private:
 
 public:
 
-    Ray() {};
+    Ray();
     Ray(const Vec3& origin, const Vec3& direction);
 
-    Vec3 getOrigin() const;
-    Vec3 getDirection() const;
+    Vec3 get_origin() const;
+    Vec3 get_direction() const;
 
     Vec3 at(double t) const;
 };

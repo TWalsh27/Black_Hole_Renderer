@@ -6,6 +6,7 @@
 #include <vector>
 #include <cstdint>
 #include "Ray.h"
+#include "Camera.h"
 
 #include "Window.h"
 
@@ -13,18 +14,26 @@ const int WIDTH = 800, HEIGHT = 600;
 
 int main(int argc, char* argv[]) {
 
+    Camera Camera(Vec3(0,0,0), 800, 600, 90);
+
+    // Allocate memory for pixel buffer
+
     std::vector<uint32_t> buffer_Mem(WIDTH * HEIGHT);
 
-    for (auto y = 0; y < HEIGHT; y++) {
-        for (auto x = 0; x < WIDTH; x++) {
-            int index = y * WIDTH + x;
-            auto u = static_cast<double> (x) / (WIDTH - 1);
-            auto v = static_cast<double> (y) / (HEIGHT - 1);
+    // Creates a color gradient using Vec3 RGB
 
-            Vec3 color(u, v, 0.0);
-            auto r = color.getX();
-            auto g = color.getY(); // get RGB values from vector
-            auto b = color.getZ();
+    for (double y = 0; y < HEIGHT; y++) {
+        for (double x = 0; x < WIDTH; x++) {
+            int index = y * WIDTH + x;
+
+            Ray current_ray {};
+            current_ray = Camera.get_ray_for_pixel(x,y);
+
+            Vec3 current_direction = current_ray.get_direction();
+
+            auto r = (current_ray.get_direction().get_x() + 1) / 2;
+            auto g = (current_ray.get_direction().get_y() + 1) / 2;
+            auto b = (current_ray.get_direction().get_z() + 1) / 2;
 
             uint8_t a = 255;
             uint8_t casted_r = static_cast<uint8_t> (r * 255);

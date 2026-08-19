@@ -10,6 +10,10 @@ add_executable(untitled1
         Window.cpp
         Window.h
         Vec3.cpp
-        Vec3.h)
+        Vec3.h
+        Ray.cpp
+        Ray.h
+        Camera.cpp
+        Camera.h)
 
 target_link_libraries(untitled1 PRIVATE SDL3::SDL3)
