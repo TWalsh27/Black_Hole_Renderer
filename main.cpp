@@ -1,5 +1,3 @@
-// Last updated 8/10/26
-
 #include <SDL3/SDL.h>
 #include <iostream>
 #include "Vec3.h"

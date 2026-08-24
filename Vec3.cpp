@@ -1,5 +1,3 @@
-// Last updated 8/10/26
-
 #include "Vec3.h"
 #include <cmath>
 

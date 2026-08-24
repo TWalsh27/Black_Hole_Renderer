@@ -1,7 +1,3 @@
-//
-// Created by Tjwal on 8/19/2026.
-//
-
 #ifndef UNTITLED1_CAMERA_H
 #define UNTITLED1_CAMERA_H
 
