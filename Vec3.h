@@ -30,6 +30,7 @@ public:
     Vec3 normalize () const;
     double dot(const Vec3& other) const;
     Vec3 cross(const Vec3& other) const;
+    Vec3 reflect(const Vec3& surface) const;
 
     Vec3 operator+(const Vec3& other) const;
     Vec3 operator-(const Vec3& other) const;

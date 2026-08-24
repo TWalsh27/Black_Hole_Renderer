@@ -14,7 +14,16 @@ const int WIDTH = 800, HEIGHT = 600;
 
 int main(int argc, char* argv[]) {
 
-    Camera Camera(Vec3(0,0,0), 800, 600, 90);
+    // Right now, main is being used to test the reflect function implementation
+    // As of 8/24, everything works as anticipated
+
+    Vec3 v(1, -1, 0);
+    Vec3 n(0, 1, 0);
+    Vec3 r = v.reflect(n);
+
+    std::cout << r.get_x() << ", " << r.get_y() << ", " << r.get_z() << std::endl;
+
+    /* Camera Camera(Vec3(0,0,0), 800, 600, 90);
 
     // Allocate memory for pixel buffer
 
@@ -71,6 +80,8 @@ int main(int argc, char* argv[]) {
                 running = false;
         }
     }
+
+    */
 
     return 0;
 }

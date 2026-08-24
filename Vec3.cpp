@@ -70,6 +70,18 @@ Vec3 Vec3::cross(const Vec3& other) const {
                 x * other.y - y * other.x);
 }
 
+Vec3 Vec3::reflect(const Vec3& surface) const {
+
+    // The reflect function simply returns the resulting reflection vector using a given
+    // surface vector and an incoming vector.
+    // The formula used for this calculation is v - 2(n · v)n
+    // where v = incoming vector and n = normalized surface vector
+
+    Vec3 normalized_surface_vector = surface.normalize();
+
+    return *this - (normalized_surface_vector * (2 * dot(normalized_surface_vector)));
+}
+
 Vec3 Vec3::operator+(const Vec3& other) const {
     return Vec3(x + other.x,
                 y + other.y,
