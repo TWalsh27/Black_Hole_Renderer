@@ -14,6 +14,8 @@ add_executable(untitled1
         Ray.cpp
         Ray.h
         Camera.cpp
-        Camera.h)
+        Camera.h
+        Sphere.cpp
+        Sphere.h)
 
 target_link_libraries(untitled1 PRIVATE SDL3::SDL3)
