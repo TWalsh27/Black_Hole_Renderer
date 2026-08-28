@@ -1,3 +1,99 @@
+// Main is currently being used to test the newly implemented ray_sphere_intersection function
+// As of 8/27/26, all tests pass successfully
+
+#include <iostream>
+#include <iomanip>
+#include "Vec3.h"
+#include "Ray.h"
+#include "Sphere.h"
+
+void print_test_result(const std::string& name,
+                       const std::pair<double, double>& result)
+{
+    std::cout << name << "\n";
+    std::cout << "t1 = " << result.first << "\n";
+    std::cout << "t2 = " << result.second << "\n";
+    std::cout << "--------------------------------\n";
+}
+
+int main() {
+
+    // ---------------------------------------------------------
+    // Test 1: Direct hit
+    // Sphere: center (0, 0, -5), radius 1
+    // Ray:    origin (0, 0, 0), direction (0, 0, -1)
+    //
+    // Expected: t = 4 and t = 6
+    // ---------------------------------------------------------
+
+    Sphere sphere1(Vec3(0, 0, -5), 1);
+    Ray ray1(Vec3(0, 0, 0), Vec3(0, 0, -1));
+
+    auto result1 = sphere1.ray_sphere_intersection(ray1);
+
+    print_test_result("TEST 1: Direct Hit", result1);
+
+
+    // ---------------------------------------------------------
+    // Test 2: Tangent
+    // Sphere: center (1, 0, -5), radius 1
+    // Ray:    origin (0, 0, 0), direction (0, 0, -1)
+    //
+    // Expected: t = 5 and t = 5
+    // ---------------------------------------------------------
+
+    Sphere sphere2(Vec3(1, 0, -5), 1);
+    Ray ray2(Vec3(0, 0, 0), Vec3(0, 0, -1));
+
+    auto result2 = sphere2.ray_sphere_intersection(ray2);
+
+    print_test_result("TEST 2: Tangent", result2);
+
+
+    // ---------------------------------------------------------
+    // Test 3: Miss
+    // Sphere: center (2, 0, -5), radius 1
+    // Ray:    origin (0, 0, 0), direction (0, 0, -1)
+    //
+    // Expected: discriminant < 0
+    // ---------------------------------------------------------
+
+    Sphere sphere3(Vec3(2, 0, -5), 1);
+    Ray ray3(Vec3(0, 0, 0), Vec3(0, 0, -1));
+
+    auto result3 = sphere3.ray_sphere_intersection(ray3);
+
+    print_test_result("TEST 3: Miss", result3);
+
+
+    // ---------------------------------------------------------
+    // Test 4: Sphere behind ray
+    // Sphere: center (0, 0, 5), radius 1
+    // Ray:    origin (0, 0, 0), direction (0, 0, -1)
+    //
+    // Expected: two negative t values
+    // ---------------------------------------------------------
+
+    Sphere sphere4(Vec3(0, 0, 5), 1);
+    Ray ray4(Vec3(0, 0, 0), Vec3(0, 0, -1));
+
+    auto result4 = sphere4.ray_sphere_intersection(ray4);
+
+    print_test_result("TEST 4: Sphere Behind Ray", result4);
+
+
+    return 0;
+}
+
+
+
+
+
+
+
+
+/*
+
 #include <SDL3/SDL.h>
 #include <iostream>
 #include "Vec3.h"
@@ -11,15 +107,6 @@
 const int WIDTH = 800, HEIGHT = 600;
 
 int main(int argc, char* argv[]) {
-
-    // Right now, main is being used to test the reflect function implementation
-    // As of 8/24, everything works as anticipated
-
-    Vec3 v(1, -1, 0);
-    Vec3 n(0, 1, 0);
-    Vec3 r = v.reflect(n);
-
-    std::cout << r.get_x() << ", " << r.get_y() << ", " << r.get_z() << std::endl;
 
     /* Camera Camera(Vec3(0,0,0), 800, 600, 90);
 
@@ -79,7 +166,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    */
-
     return 0;
 }
+
+*/

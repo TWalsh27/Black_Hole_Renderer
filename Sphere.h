@@ -3,6 +3,7 @@
 
 #include "Vec3.h"
 #include "Ray.h"
+#include <utility>
 
 class Sphere {
 private:
@@ -10,12 +11,12 @@ private:
     double radius;
 
 public:
-    Sphere( const Vec3& center, double radius);
+    Sphere(const Vec3& center, double radius);
 
     Vec3 get_center() const;
     double get_radius() const;
 
-    bool check_ray_sphere_intersection( const Ray& Ray);
+    std::pair<double, double> ray_sphere_intersection(const Ray& ray);
 };
 
 #endif //SPHERE_H
