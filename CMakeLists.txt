@@ -1,21 +1,21 @@
 cmake_minimum_required(VERSION 4.1)
-project(untitled1)
+project(Black_Hole_Renderer)
 
 set(CMAKE_CXX_STANDARD 20)
 
 find_package(SDL3 CONFIG REQUIRED)
 
-add_executable(untitled1
+add_executable(Black_Hole_Renderer
         main.cpp
-        Window.cpp
-        Window.h
-        Vec3.cpp
-        Vec3.h
-        Ray.cpp
-        Ray.h
-        Camera.cpp
-        Camera.h
-        Sphere.cpp
-        Sphere.h)
+        Classes/Window.cpp
+        Classes/Window.h
+        Classes/Vec3.cpp
+        Classes/Vec3.h
+        Classes/Ray.cpp
+        Classes/Ray.h
+        Classes/Camera.cpp
+        Classes/Camera.h
+        Classes/Sphere.cpp
+        Classes/Sphere.h)
 
-target_link_libraries(untitled1 PRIVATE SDL3::SDL3)
+target_link_libraries(Black_Hole_Renderer PRIVATE SDL3::SDL3)

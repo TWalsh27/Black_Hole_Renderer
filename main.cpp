@@ -1,13 +1,12 @@
 #include <SDL3/SDL.h>
 #include <iostream>
-#include "Vec3.h"
+#include "Classes/Vec3.h"
 #include <vector>
 #include <cstdint>
-#include "Ray.h"
-#include "Camera.h"
-#include "Sphere.h"
-
-#include "Window.h"
+#include "Classes/Ray.h"
+#include "Classes/Camera.h"
+#include "Classes/Sphere.h"
+#include "Classes/Window.h"
 
 // Testing Git Commit
 
