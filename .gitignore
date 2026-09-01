@@ -1,0 +1,17 @@
+# CLion
+.idea/
+
+# CMake build directories
+cmake-build-*/
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+# Compiled C/C++ files
+*.exe
+*.obj
+*.o
+*.dll
+*.lib

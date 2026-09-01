@@ -9,6 +9,8 @@
 
 #include "Window.h"
 
+// Testing Git Commit
+
 const int WIDTH = 800, HEIGHT = 600;
 
 int main(int argc, char* argv[]) {
