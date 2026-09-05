@@ -41,8 +41,23 @@ int main(int argc, char* argv[]) {
                 chosen_intersect = intersects.second;
 
             if (chosen_intersect != -1) { // hit
-                uint32_t pixel = 0xFF000000;
-                buffer_Mem[index] = pixel;
+                // get 3D face
+                Vec3 hit_point = current_ray.at(chosen_intersect);
+                Vec3 normal = (hit_point - Sphere.get_center()).normalize();
+
+                // map here
+                auto r = (normal.get_x() + 1) / 2;
+                auto g = (normal.get_y() + 1) / 2;
+                auto b = (normal.get_z() + 1) / 2;
+                
+                uint8_t a = 255;
+                uint8_t casted_r = static_cast<uint8_t> (r * 255);
+                uint8_t casted_g = static_cast<uint8_t> (g * 255); // cast them to uint8_t
+                uint8_t casted_b = static_cast<uint8_t> (b * 255);
+
+                uint32_t pixel = (a << 24) | (casted_r << 16) | (casted_g << 8) | casted_b; // bit shift them into uint32 value
+
+                buffer_Mem[index] = pixel; // map onto frame
             }
             else { // miss
                 auto r = (current_direction.get_x() + 1) / 2;
