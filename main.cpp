@@ -18,6 +18,8 @@ int main(int argc, char* argv[]) {
 
     Sphere Sphere(Vec3(0,0,-5), 1);
 
+    Vec3 light_position(-3, 3, 0);
+
     // Allocate memory for pixel buffer
 
     std::vector<uint32_t> buffer_Mem(WIDTH * HEIGHT);
@@ -45,11 +47,15 @@ int main(int argc, char* argv[]) {
                 Vec3 hit_point = current_ray.at(chosen_intersect);
                 Vec3 normal = (hit_point - Sphere.get_center()).normalize();
 
+                // get brightness from light position
+                Vec3 light_direction = (light_position - hit_point).normalize();
+                double brightness = std::max(double(0), normal.dot(light_direction));
+
                 // map here
-                auto r = (normal.get_x() + 1) / 2;
-                auto g = (normal.get_y() + 1) / 2;
-                auto b = (normal.get_z() + 1) / 2;
-                
+                auto r = 1 * brightness;
+                auto g = 0;
+                auto b = 0;
+
                 uint8_t a = 255;
                 uint8_t casted_r = static_cast<uint8_t> (r * 255);
                 uint8_t casted_g = static_cast<uint8_t> (g * 255); // cast them to uint8_t
