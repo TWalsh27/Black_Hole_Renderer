@@ -8,7 +8,19 @@
 #include "Classes/Sphere.h"
 #include "Classes/Window.h"
 
-// Testing Git Commit
+// this function is a temporary measure to clean up repeated code in main
+uint32_t get_pixel(const double r, const double g, const double b) {
+    // cast them to uint8_t
+    uint8_t a = 255;
+    uint8_t casted_r = static_cast<uint8_t> (r * 255);
+    uint8_t casted_g = static_cast<uint8_t> (g * 255);
+    uint8_t casted_b = static_cast<uint8_t> (b * 255);
+
+    // bit shift them into uint32 value
+    uint32_t pixel = (a << 24) | (casted_r << 16) | (casted_g << 8) | casted_b;
+
+    return pixel;
+}
 
 const int WIDTH = 800, HEIGHT = 600;
 
@@ -18,7 +30,7 @@ int main(int argc, char* argv[]) {
 
     Sphere Sphere(Vec3(0,0,-5), 1);
 
-    Vec3 light_position(-3, 3, 0);
+    Vec3 light_position(-6, -2, 0);
 
     // Allocate memory for pixel buffer
 
@@ -47,21 +59,17 @@ int main(int argc, char* argv[]) {
                 Vec3 hit_point = current_ray.at(chosen_intersect);
                 Vec3 normal = (hit_point - Sphere.get_center()).normalize();
 
-                // get brightness from light position
+                // get brightness from light position and hit
                 Vec3 light_direction = (light_position - hit_point).normalize();
                 double brightness = std::max(double(0), normal.dot(light_direction));
 
                 // map here
+                // using pure red for testing
                 auto r = 1 * brightness;
                 auto g = 0;
                 auto b = 0;
 
-                uint8_t a = 255;
-                uint8_t casted_r = static_cast<uint8_t> (r * 255);
-                uint8_t casted_g = static_cast<uint8_t> (g * 255); // cast them to uint8_t
-                uint8_t casted_b = static_cast<uint8_t> (b * 255);
-
-                uint32_t pixel = (a << 24) | (casted_r << 16) | (casted_g << 8) | casted_b; // bit shift them into uint32 value
+                uint32_t pixel = get_pixel(r,g,b);
 
                 buffer_Mem[index] = pixel; // map onto frame
             }
@@ -70,12 +78,7 @@ int main(int argc, char* argv[]) {
                 auto g = (current_direction.get_y() + 1) / 2;
                 auto b = (current_direction.get_z() + 1) / 2;
 
-                uint8_t a = 255;
-                uint8_t casted_r = static_cast<uint8_t> (r * 255);
-                uint8_t casted_g = static_cast<uint8_t> (g * 255); // cast them to uint8_t
-                uint8_t casted_b = static_cast<uint8_t> (b * 255);
-
-                uint32_t pixel = (a << 24) | (casted_r << 16) | (casted_g << 8) | casted_b; // bit shift them into uint32 value
+                uint32_t pixel = get_pixel(r,g,b);
 
                 buffer_Mem[index] = pixel; // map onto frame
             }
