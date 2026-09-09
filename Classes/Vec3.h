@@ -34,7 +34,6 @@ public:
     Vec3 operator-(const Vec3& other) const;
     Vec3 operator*(double scalar) const;
     Vec3 operator/(double scalar) const;
-
 };
 
 #endif //UNTITLED1_VEC3_H

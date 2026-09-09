@@ -9,8 +9,10 @@
 #include "Classes/Sphere.h"
 #include "Classes/Window.h"
 
-// this function is a temporary measure to clean up repeated code in main
-uint32_t get_pixel(const double r, const double g, const double b) {
+// Main helper functions:
+
+uint32_t get_pixel(const double r, const double g, const double b)
+{
     // cast them to uint8_t
     uint8_t a = 255;
     uint8_t casted_r = static_cast<uint8_t> (r * 255);
@@ -23,38 +25,50 @@ uint32_t get_pixel(const double r, const double g, const double b) {
     return pixel;
 }
 
+double get_closest_positive_t(const std::pair<double, double>& intersects)
+{
+    double chosen_intersect = -1;
+
+    if (intersects.first > 0)
+        chosen_intersect = intersects.first;
+
+    if (intersects.second > 0 &&
+        (chosen_intersect < 0 || intersects.second < chosen_intersect))
+    {
+        chosen_intersect = intersects.second;
+    }
+
+    return chosen_intersect;
+}
+
 const int WIDTH = 800, HEIGHT = 600;
 
 int main(int argc, char* argv[]) {
 
-    Camera Camera(Vec3(0,0,0), 800, 600, 90);
+    Camera camera(Vec3(0,0,0), 800, 600, 90);
 
     // currently testing multiple temporary spheres
 
-    Sphere Sphere1(Vec3(0,0,-5), 1, 0xFFFF0000);
-    Sphere Sphere2(Vec3(0,1,-3), 1, 0xFF00FF00);
-    Sphere Sphere3(Vec3(-2,-2,-4), 1, 0xFF0000FF);
+    Sphere sphere1(Vec3(-1,0,-4), 1, 0xFFFF0000);
+    Sphere sphere2(Vec3(2,1,-5), 1, 0xFF00FF00);
 
-    std::vector<Sphere> sphere_container;
-
-    sphere_container.push_back(Sphere1);
-    sphere_container.push_back(Sphere2);
-    sphere_container.push_back(Sphere3);
+    std::vector<Sphere> sphere_container {
+        sphere1,
+        sphere2,
+    };
 
     Vec3 light_position(-6, -2, 0);
 
     // Allocate memory for pixel buffer
-
     std::vector<uint32_t> buffer_Mem(WIDTH * HEIGHT);
 
-    // Creates a color gradient using Vec3 RGB
-
+    // Render objects and gradient onto frame
     for (double y = 0; y < HEIGHT; y++) {
         for (double x = 0; x < WIDTH; x++) {
             int index = y * WIDTH + x;
 
             Ray current_ray {};
-            current_ray = Camera.get_ray_for_pixel(x,y);
+            current_ray = camera.get_ray_for_pixel(x,y);
 
             double closest_t = DBL_MAX;
             Sphere closest_sphere(Vec3(0,0,0), 0, 0x00000000);
@@ -65,14 +79,7 @@ int main(int argc, char* argv[]) {
                 double chosen_intersect = -1;
 
                 // The below code retrieves the minimum positive value of the pair. I'll clean it up later
-                if (intersects.first > 0)
-                    chosen_intersect = intersects.first;
-
-                if (intersects.second > 0 &&
-                    (chosen_intersect < 0 || intersects.second < chosen_intersect))
-                {
-                    chosen_intersect = intersects.second;
-                }
+                chosen_intersect = get_closest_positive_t(intersects);
 
                 if (chosen_intersect < closest_t && chosen_intersect > 0)
                 {
@@ -88,14 +95,42 @@ int main(int argc, char* argv[]) {
                 Vec3 hit_point = current_ray.at(closest_t);
                 Vec3 normal = (hit_point - closest_sphere.get_center()).normalize();
 
-                // get brightness from light position and hit
+                // init shadow ray
+                Vec3 shadow_origin = hit_point + normal * 0.001;
                 Vec3 light_direction = (light_position - hit_point).normalize();
-                double brightness = std::max(double(0), normal.dot(light_direction));
+                Ray shadow_ray(shadow_origin, light_direction);
+
+                double light_distance = (light_position - hit_point).get_length();
+
+                bool in_shadow = false;
+
+                for (const Sphere& curr : sphere_container)
+                {
+                    std::pair<double, double> intersects = curr.ray_sphere_intersection(shadow_ray);
+                    double chosen_intersect = -1;
+
+                    chosen_intersect = get_closest_positive_t(intersects);
+
+                    if (0 < chosen_intersect && chosen_intersect < light_distance)
+                    {
+                        in_shadow = true;
+                        break;
+                    }
+                }
+
+                // init brightness to 0 (in shadow)
+                double brightness = 0;
+
+                // correct brightness if not in shadow
+                if (!in_shadow)
+                {
+                    brightness = std::max(0.0, normal.dot(light_direction));
+                }
 
                 uint32_t sphere_color = closest_sphere.get_color();
 
                 // Use sphere color and bit shifting to isolate RGB values.
-                // Then multiply by 255 to get the RBG values into standard form
+                // Then divide by 255 to get the RBG values into standard form
                 // Finally, multiply by the dirived brightness value and send into the get_pixel function
                 auto r = ((sphere_color >> 16) & 0xFF) / 255.0 * brightness;
                 auto g = ((sphere_color >> 8) & 0xFF) / 255.0 * brightness;
