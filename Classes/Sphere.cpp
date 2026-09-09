@@ -21,7 +21,7 @@ uint32_t Sphere::get_color() const {
 
 // Methods ----------------------------------
 
-std::pair<double, double> Sphere::ray_sphere_intersection(const Ray& ray)
+std::pair<double, double> Sphere::ray_sphere_intersection(const Ray& ray) const
 {
     // This function is used to find all real values t that satisfy the quadratic created
     // when checking for ray sphere intersection points along a given incident ray and sphere

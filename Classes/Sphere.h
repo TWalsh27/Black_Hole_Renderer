@@ -20,7 +20,7 @@ public:
     double get_radius() const;
     uint32_t get_color() const;
 
-    std::pair<double, double> ray_sphere_intersection(const Ray& ray);
+    std::pair<double, double> ray_sphere_intersection(const Ray& ray) const;
 };
 
 #endif //SPHERE_H

@@ -1,3 +1,4 @@
+#include <cfloat>
 #include <SDL3/SDL.h>
 #include <iostream>
 #include "Classes/Vec3.h"
@@ -28,7 +29,17 @@ int main(int argc, char* argv[]) {
 
     Camera Camera(Vec3(0,0,0), 800, 600, 90);
 
-    Sphere Sphere(Vec3(0,0,-5), 1, 0xFFFF0000);
+    // currently testing multiple temporary spheres
+
+    Sphere Sphere1(Vec3(0,0,-5), 1, 0xFFFF0000);
+    Sphere Sphere2(Vec3(0,1,-3), 1, 0xFF00FF00);
+    Sphere Sphere3(Vec3(-2,-2,-4), 1, 0xFF0000FF);
+
+    std::vector<Sphere> sphere_container;
+
+    sphere_container.push_back(Sphere1);
+    sphere_container.push_back(Sphere2);
+    sphere_container.push_back(Sphere3);
 
     Vec3 light_position(-6, -2, 0);
 
@@ -44,26 +55,44 @@ int main(int argc, char* argv[]) {
 
             Ray current_ray {};
             current_ray = Camera.get_ray_for_pixel(x,y);
-            std::pair<double, double> intersects = Sphere.ray_sphere_intersection(current_ray);
+
+            double closest_t = DBL_MAX;
+            Sphere closest_sphere(Vec3(0,0,0), 0, 0x00000000);
+
+            for (const Sphere& curr : sphere_container)
+            {
+                std::pair<double, double> intersects = curr.ray_sphere_intersection(current_ray);
+                double chosen_intersect = -1;
+
+                // The below code retrieves the minimum positive value of the pair. I'll clean it up later
+                if (intersects.first > 0)
+                    chosen_intersect = intersects.first;
+
+                if (intersects.second > 0 &&
+                    (chosen_intersect < 0 || intersects.second < chosen_intersect))
+                {
+                    chosen_intersect = intersects.second;
+                }
+
+                if (chosen_intersect < closest_t && chosen_intersect > 0)
+                {
+                    closest_t = chosen_intersect;
+                    closest_sphere = curr;
+                }
+            }
+
             Vec3 current_direction = current_ray.get_direction();
-            double chosen_intersect = -1;
 
-            // The below code retrieves the minimum positive value of the pair. I'll clean it up later
-            if (intersects.first > 0)
-                chosen_intersect = intersects.first;
-            if (intersects.second > 0 && intersects.second < intersects.first)
-                chosen_intersect = intersects.second;
-
-            if (chosen_intersect != -1) { // hit
+            if (closest_t != DBL_MAX) { // hit
                 // get 3D face
-                Vec3 hit_point = current_ray.at(chosen_intersect);
-                Vec3 normal = (hit_point - Sphere.get_center()).normalize();
+                Vec3 hit_point = current_ray.at(closest_t);
+                Vec3 normal = (hit_point - closest_sphere.get_center()).normalize();
 
                 // get brightness from light position and hit
                 Vec3 light_direction = (light_position - hit_point).normalize();
                 double brightness = std::max(double(0), normal.dot(light_direction));
 
-                uint32_t sphere_color = Sphere.get_color();
+                uint32_t sphere_color = closest_sphere.get_color();
 
                 // Use sphere color and bit shifting to isolate RGB values.
                 // Then multiply by 255 to get the RBG values into standard form
@@ -77,7 +106,9 @@ int main(int argc, char* argv[]) {
                 // Write pixel data to memory and map onto frame
                 buffer_Mem[index] = pixel;
             }
-            else { // miss
+            else
+            {
+                // miss
                 auto r = (current_direction.get_x() + 1) / 2;
                 auto g = (current_direction.get_y() + 1) / 2;
                 auto b = (current_direction.get_z() + 1) / 2;
