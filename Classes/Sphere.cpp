@@ -1,10 +1,9 @@
 #include "Sphere.h"
-#include <cmath>
 
 // Constructors ----------------------------
 
-Sphere::Sphere(const Vec3& center, double radius) :
-    center(center), radius(radius) {}
+Sphere::Sphere(const Vec3& center, double radius, uint32_t color) :
+    center(center), radius(radius), color(color) {}
 
 // Getters ---------------------------------
 
@@ -14,6 +13,10 @@ Vec3 Sphere::get_center() const {
 
 double Sphere::get_radius() const {
     return radius;
+}
+
+uint32_t Sphere::get_color() const {
+    return color;
 }
 
 // Methods ----------------------------------

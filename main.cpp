@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
 
     Camera Camera(Vec3(0,0,0), 800, 600, 90);
 
-    Sphere Sphere(Vec3(0,0,-5), 1);
+    Sphere Sphere(Vec3(0,0,-5), 1, 0xFFFF0000);
 
     Vec3 light_position(-6, -2, 0);
 
@@ -63,15 +63,19 @@ int main(int argc, char* argv[]) {
                 Vec3 light_direction = (light_position - hit_point).normalize();
                 double brightness = std::max(double(0), normal.dot(light_direction));
 
-                // map here
-                // using pure red for testing
-                auto r = 1 * brightness;
-                auto g = 0;
-                auto b = 0;
+                uint32_t sphere_color = Sphere.get_color();
+
+                // Use sphere color and bit shifting to isolate RGB values.
+                // Then multiply by 255 to get the RBG values into standard form
+                // Finally, multiply by the dirived brightness value and send into the get_pixel function
+                auto r = ((sphere_color >> 16) & 0xFF) / 255.0 * brightness;
+                auto g = ((sphere_color >> 8) & 0xFF) / 255.0 * brightness;
+                auto b = (sphere_color & 0xFF) / 255.0 * brightness;
 
                 uint32_t pixel = get_pixel(r,g,b);
 
-                buffer_Mem[index] = pixel; // map onto frame
+                // Write pixel data to memory and map onto frame
+                buffer_Mem[index] = pixel;
             }
             else { // miss
                 auto r = (current_direction.get_x() + 1) / 2;
