@@ -9,9 +9,9 @@
 
 class Sphere {
 private:
-    Vec3 center;
-    double radius;
-    uint32_t color;
+    Vec3 center{};
+    double radius{};
+    uint32_t color{};
 
 public:
     Sphere(const Vec3& center, double radius, uint32_t color);

@@ -6,13 +6,13 @@
 
 class Camera {
 private:
-    Vec3 position;
-    const double image_width;
-    const double image_height;
+    Vec3 position{};
+    const double image_width{};
+    const double image_height{};
     const double aspect_ratio = image_width / image_height;
     const double viewport_height = 100;
     const double viewport_width = aspect_ratio * viewport_height;
-    const double focal_length;
+    const double focal_length{};
     const double fov = 90;
 
 public:
