@@ -1,8 +1,8 @@
 #ifndef HITRECORD_H
 #define HITRECORD_H
 
-#include "Classes/Vec3.h"
-#include "Classes/Sphere.h"
+#include "Vec3.h"
+#include "Sphere.h"
 
 class HitRecord {
 private:

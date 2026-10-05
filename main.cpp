@@ -8,10 +8,11 @@
 #include "Classes/Camera.h"
 #include "Classes/Sphere.h"
 #include "Classes/Window.h"
-#include "HitRecord.h"
+#include "Classes/HitRecord.h"
 
 // Main helper functions:
 
+// Takes in an RGB value and returns a unint32_t
 uint32_t get_pixel(const double r, const double g, const double b)
 {
     // cast them to uint8_t
@@ -26,6 +27,7 @@ uint32_t get_pixel(const double r, const double g, const double b)
     return pixel;
 }
 
+// Takes in a pair of intersects and determines the closest valid t value
 double get_closest_positive_t(const std::pair<double, double>& intersects)
 {
     double chosen_intersect = -1;
@@ -42,6 +44,7 @@ double get_closest_positive_t(const std::pair<double, double>& intersects)
     return chosen_intersect;
 }
 
+// Takes in a ray and a container of all spheres in the scene. Returns the closest hit of said ray on the spheres
 HitRecord find_closest_hit(const Ray& test_ray, const std::vector<Sphere>& sphere_container)
 {
     HitRecord empty_hit_record;
@@ -76,9 +79,9 @@ HitRecord find_closest_hit(const Ray& test_ray, const std::vector<Sphere>& spher
     return full_hit_record;
 }
 
-const int WIDTH = 800, HEIGHT = 600;
-
 int main(int argc, char* argv[]) {
+
+    const int WIDTH = 800, HEIGHT = 600;
 
     Camera camera(Vec3(0,0,0), 800, 600, 90);
 
@@ -196,6 +199,8 @@ int main(int argc, char* argv[]) {
             }
         }
     }
+
+    // The code below is used for the window, and it thus not related to the logic above
 
     Window Test_Window("Test Window", WIDTH, HEIGHT);
 

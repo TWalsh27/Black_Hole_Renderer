@@ -17,7 +17,7 @@ add_executable(Black_Hole_Renderer
         Classes/Camera.h
         Classes/Sphere.cpp
         Classes/Sphere.h
-        HitRecord.cpp
-        HitRecord.h)
+        Classes/HitRecord.cpp
+        Classes/HitRecord.h)
 
 target_link_libraries(Black_Hole_Renderer PRIVATE SDL3::SDL3)
