@@ -79,6 +79,26 @@ HitRecord find_closest_hit(const Ray& test_ray, const std::vector<Sphere>& spher
     return full_hit_record;
 }
 
+Vec3 get_normalized_color(const uint32_t color) {
+    auto r = (color >> 16 & 0xFF) / 255.0;
+    auto g = (color >> 8 & 0xFF) / 255.0;
+    auto b = (color & 0xFF) / 255.0;
+
+    Vec3 color_vector(r,g,b);
+
+    return color_vector;
+}
+
+Vec3 get_background_color(const Vec3& direction) {
+    auto r = (direction.get_x() + 1) / 2;
+    auto g = (direction.get_y() + 1) / 2;
+    auto b = (direction.get_z() + 1) / 2;
+
+    Vec3 color_vector(r,g,b);
+
+    return color_vector;
+}
+
 int main(int argc, char* argv[]) {
 
     const int WIDTH = 800, HEIGHT = 600;
@@ -139,25 +159,18 @@ int main(int argc, char* argv[]) {
 
                 HitRecord reflection_hit_record = find_closest_hit(reflection_ray, sphere_container);
 
-                double reflected_r;
-                double reflected_g;
-                double reflected_b;
+                Vec3 reflection_color_vector;
 
                 if (reflection_hit_record.get_hit_status()) // reflection hit
                 {
                     uint32_t reflected_color = reflection_hit_record.get_hit_object()->get_color();
 
-                    reflected_r = ((reflected_color >> 16) & 0xFF) / 255.0;
-                    reflected_g = ((reflected_color >> 8) & 0xFF) / 255.0;
-                    reflected_b = (reflected_color & 0xFF) / 255.0;
+                    reflection_color_vector = get_normalized_color(reflected_color);
                 }
                 else // reflection miss
                 {
                     Vec3 reflected_direction = reflection_ray.get_direction();
-
-                    reflected_r = (reflected_direction.get_x() + 1) / 2;
-                    reflected_g = (reflected_direction.get_y() + 1) / 2;
-                    reflected_b = (reflected_direction.get_z() + 1) / 2;
+                    reflection_color_vector = get_background_color(reflected_direction);
                 }
 
                 // init brightness to 0 (in shadow)
@@ -173,27 +186,21 @@ int main(int argc, char* argv[]) {
 
                 double reflectivity = 0.3; // temporary reflectivity value
 
-                auto local_r = ((local_color >> 16) & 0xFF) / 255.0 * brightness;
-                auto local_g = ((local_color >> 8) & 0xFF) / 255.0 * brightness;
-                auto local_b = (local_color & 0xFF) / 255.0 * brightness;
+                Vec3 local_rgb = get_normalized_color(local_color) * brightness;
 
-                auto final_r = (1 - reflectivity) * local_r + reflectivity * reflected_r;
-                auto final_g = (1 - reflectivity) * local_g + reflectivity * reflected_g;
-                auto final_b = (1 - reflectivity) * local_b + reflectivity * reflected_b;
+                Vec3 final_rgb = local_rgb * (1 - reflectivity) + (reflection_color_vector * reflectivity);
 
-                uint32_t pixel = get_pixel(final_r,final_g,final_b);
+                uint32_t pixel = get_pixel(final_rgb.get_x(), final_rgb.get_y(), final_rgb.get_z());
 
                 // Write pixel data to memory and map onto frame
                 buffer_Mem[index] = pixel;
             }
-            else
+            else // miss
             {
-                // miss
-                auto r = (current_direction.get_x() + 1) / 2;
-                auto g = (current_direction.get_y() + 1) / 2;
-                auto b = (current_direction.get_z() + 1) / 2;
 
-                uint32_t pixel = get_pixel(r,g,b);
+                Vec3 bg_color = get_background_color(current_direction);
+
+                uint32_t pixel = get_pixel(bg_color.get_x(), bg_color.get_y(), bg_color.get_z());
 
                 buffer_Mem[index] = pixel; // map onto frame
             }
