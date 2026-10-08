@@ -9,6 +9,7 @@
 #include "Classes/Sphere.h"
 #include "Classes/Window.h"
 #include "Classes/HitRecord.h"
+#include <sys/time.h>
 
 // Main helper functions:
 
@@ -165,6 +166,13 @@ Vec3 trace_ray(const Ray& ray, const std::vector<Sphere>& sphere_container, cons
 
 int main(int argc, char* argv[]) {
 
+    // start tracker for time calculations
+    struct timespec start, end;
+
+    volatile long long sum = 0;
+    long outer_limit = 10000;
+    long inner_limit = 50000;
+
     const int WIDTH = 800, HEIGHT = 600;
 
     Camera camera(Vec3(0,0,0), 800, 600, 90);
@@ -186,20 +194,41 @@ int main(int argc, char* argv[]) {
     // Allocate memory for pixel buffer
     std::vector<uint32_t> buffer_mem(WIDTH * HEIGHT);
 
+    // start timer
+    clock_gettime(CLOCK_MONOTONIC, &start);
+
     // Render objects and gradient onto frame
     for (double y = 0; y < HEIGHT; y++) {
         for (double x = 0; x < WIDTH; x++) {
             int index = y * WIDTH + x;
 
-            Ray current_ray = camera.get_ray_for_pixel(x,y);
+            Vec3 color_sum;
 
-            Vec3 color = trace_ray(current_ray, sphere_container, light_position, depth);
+            for (int j = 0; j < 4; j++)
+            {
+                double offset_x = 0.25 + 0.5 * (j % 2);
+                double offset_y = 0.25 + 0.5 * (j / 2);
 
-            uint32_t pixel = get_pixel(color.get_x(), color.get_y(), color.get_z());
+                Ray current_ray = camera.get_ray_for_pixel(x + offset_x, y + offset_y);
+
+                color_sum = color_sum + trace_ray(current_ray, sphere_container, light_position, depth);
+            }
+
+            color_sum = color_sum / 4;
+
+            uint32_t pixel = get_pixel(color_sum.get_x(), color_sum.get_y(), color_sum.get_z());
 
             buffer_mem[index] = pixel;
         }
     }
+
+    // end timer and calculate, then print to terminal
+    clock_gettime(CLOCK_MONOTONIC, &end);
+
+    double time_taken = (end.tv_sec - start.tv_sec) +
+                        (end.tv_nsec - start.tv_nsec) / 1e9;
+
+    printf ("Image rendered in %lf seconds ", time_taken);
 
     // The code below is used for the window, and it thus not related to the logic above
 
