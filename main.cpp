@@ -99,6 +99,72 @@ Vec3 get_background_color(const Vec3& direction) {
     return color_vector;
 }
 
+Vec3 trace_ray(const Ray& ray, const std::vector<Sphere>& sphere_container, const Vec3& light_position, int depth)
+{
+    Vec3 current_direction = ray.get_direction();
+
+    HitRecord hit_record = find_closest_hit(ray, sphere_container);
+
+    if (hit_record.get_hit_status())
+    {
+        // hit
+
+        // init shadow ray
+        Vec3 shadow_origin = hit_record.get_hit_point() + hit_record.get_normal() * 0.001;
+        Vec3 light_direction = (light_position - hit_record.get_hit_point()).normalize();
+        Ray shadow_ray(shadow_origin, light_direction);
+
+        HitRecord shadow_hit_record = find_closest_hit(shadow_ray, sphere_container);
+
+        double light_distance = (light_position - hit_record.get_hit_point()).get_length();
+
+        bool in_shadow;
+
+        if (shadow_hit_record.get_hit_status() && shadow_hit_record.get_t() < light_distance)
+            in_shadow = true;
+        else
+            in_shadow = false;
+
+        // init brightness to 0 (in shadow)
+        double brightness = 0;
+
+        // correct brightness if not in shadow
+        if (!in_shadow)
+        {
+            brightness = std::max(0.0, hit_record.get_normal().dot(light_direction));
+        }
+
+        uint32_t local_color = hit_record.get_hit_object()->get_color();
+
+        double reflectivity = 0.3; // temporary reflectivity value
+
+        Vec3 local_rgb = get_normalized_color(local_color) * brightness;
+
+        if (depth == 0)
+            return local_rgb;
+
+        // get reflection ray component
+        Vec3 incoming_direction = current_direction;
+        Vec3 reflection_direction = incoming_direction.reflect(hit_record.get_normal());
+        Vec3 reflection_origin = hit_record.get_hit_point() + hit_record.get_normal() * 0.001;
+
+        // init reflection ray
+        Ray reflection_ray(reflection_origin, reflection_direction);
+
+        Vec3 reflection_color_vector = trace_ray(reflection_ray, sphere_container, light_position, depth - 1);
+
+        Vec3 final_rgb = local_rgb * (1 - reflectivity) + (reflection_color_vector * reflectivity);
+
+        return final_rgb;
+    }
+
+    // miss
+
+    Vec3 final_rgb = get_background_color(current_direction);
+
+    return final_rgb;
+}
+
 int main(int argc, char* argv[]) {
 
     const int WIDTH = 800, HEIGHT = 600;
@@ -115,10 +181,12 @@ int main(int argc, char* argv[]) {
         sphere2,
     };
 
-    Vec3 light_position(-6, -2, 0);
+    Vec3 light_position(-4, -8, 0);
+
+    int depth = 3;
 
     // Allocate memory for pixel buffer
-    std::vector<uint32_t> buffer_Mem(WIDTH * HEIGHT);
+    std::vector<uint32_t> buffer_mem(WIDTH * HEIGHT);
 
     // Render objects and gradient onto frame
     for (double y = 0; y < HEIGHT; y++) {
@@ -127,83 +195,11 @@ int main(int argc, char* argv[]) {
 
             Ray current_ray = camera.get_ray_for_pixel(x,y);
 
-            HitRecord hit_record = find_closest_hit(current_ray, sphere_container);
+            Vec3 color = trace_ray(current_ray, sphere_container, light_position, depth);
 
-            Vec3 current_direction = current_ray.get_direction();
+            uint32_t pixel = get_pixel(color.get_x(), color.get_y(), color.get_z());
 
-            if (hit_record.get_hit_status()) { // hit
-
-                // init shadow ray
-                Vec3 shadow_origin = hit_record.get_hit_point() + hit_record.get_normal() * 0.001;
-                Vec3 light_direction = (light_position - hit_record.get_hit_point()).normalize();
-                Ray shadow_ray(shadow_origin, light_direction);
-
-                HitRecord shadow_hit_record = find_closest_hit(shadow_ray, sphere_container);
-
-                double light_distance = (light_position - hit_record.get_hit_point()).get_length();
-
-                bool in_shadow;
-
-                if (shadow_hit_record.get_hit_status() && shadow_hit_record.get_t() < light_distance)
-                    in_shadow = true;
-                else
-                    in_shadow = false;
-
-                // get reflection ray component
-                Vec3 incoming_direction = current_ray.get_direction();
-                Vec3 reflection_direction = incoming_direction.reflect(hit_record.get_normal());
-                Vec3 reflection_origin = hit_record.get_hit_point() + hit_record.get_normal() * 0.001;
-
-                // init reflection ray
-                Ray reflection_ray(reflection_origin, reflection_direction);
-
-                HitRecord reflection_hit_record = find_closest_hit(reflection_ray, sphere_container);
-
-                Vec3 reflection_color_vector;
-
-                if (reflection_hit_record.get_hit_status()) // reflection hit
-                {
-                    uint32_t reflected_color = reflection_hit_record.get_hit_object()->get_color();
-
-                    reflection_color_vector = get_normalized_color(reflected_color);
-                }
-                else // reflection miss
-                {
-                    Vec3 reflected_direction = reflection_ray.get_direction();
-                    reflection_color_vector = get_background_color(reflected_direction);
-                }
-
-                // init brightness to 0 (in shadow)
-                double brightness = 0;
-
-                // correct brightness if not in shadow
-                if (!in_shadow)
-                {
-                    brightness = std::max(0.0, hit_record.get_normal().dot(light_direction));
-                }
-
-                uint32_t local_color = hit_record.get_hit_object()->get_color();
-
-                double reflectivity = 0.3; // temporary reflectivity value
-
-                Vec3 local_rgb = get_normalized_color(local_color) * brightness;
-
-                Vec3 final_rgb = local_rgb * (1 - reflectivity) + (reflection_color_vector * reflectivity);
-
-                uint32_t pixel = get_pixel(final_rgb.get_x(), final_rgb.get_y(), final_rgb.get_z());
-
-                // Write pixel data to memory and map onto frame
-                buffer_Mem[index] = pixel;
-            }
-            else // miss
-            {
-
-                Vec3 bg_color = get_background_color(current_direction);
-
-                uint32_t pixel = get_pixel(bg_color.get_x(), bg_color.get_y(), bg_color.get_z());
-
-                buffer_Mem[index] = pixel; // map onto frame
-            }
+            buffer_mem[index] = pixel;
         }
     }
 
@@ -218,7 +214,7 @@ int main(int argc, char* argv[]) {
                                     SDL_TEXTUREACCESS_STREAMING,
                                     WIDTH, HEIGHT);
 
-    SDL_UpdateTexture(texture, nullptr, buffer_Mem.data(), WIDTH * sizeof(uint32_t));
+    SDL_UpdateTexture(texture, nullptr, buffer_mem.data(), WIDTH * sizeof(uint32_t));
 
     bool running = true;
 
