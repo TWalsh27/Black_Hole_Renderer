@@ -125,14 +125,12 @@ Vec3 trace_ray(const Ray& ray, const std::vector<Sphere>& sphere_container, cons
         else
             in_shadow = false;
 
-        // init brightness to 0 (in shadow)
-        double brightness = 0;
+        // init brightness to .15 (in shadow)
+        double brightness = .15;
 
         // correct brightness if not in shadow
         if (!in_shadow)
-        {
-            brightness = std::max(0.0, hit_record.get_normal().dot(light_direction));
-        }
+            brightness = brightness + .85 * std::max(0.0, hit_record.get_normal().dot(light_direction));
 
         uint32_t local_color = hit_record.get_hit_object()->get_color();
 
