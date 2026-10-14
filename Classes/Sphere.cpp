@@ -2,8 +2,8 @@
 
 // Constructors ----------------------------
 
-Sphere::Sphere(const Vec3& center, double radius, uint32_t color) :
-    center(center), radius(radius), color(color) {}
+Sphere::Sphere(const Vec3& center, double radius, const Material& material) :
+    center(center), radius(radius), material(material) {}
 
 // Getters ---------------------------------
 
@@ -15,8 +15,8 @@ double Sphere::get_radius() const {
     return radius;
 }
 
-uint32_t Sphere::get_color() const {
-    return color;
+const Material& Sphere::get_material() const {
+    return material;
 }
 
 // Methods ----------------------------------

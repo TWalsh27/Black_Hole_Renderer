@@ -18,6 +18,8 @@ add_executable(Black_Hole_Renderer
         Classes/Sphere.cpp
         Classes/Sphere.h
         Classes/HitRecord.cpp
-        Classes/HitRecord.h)
+        Classes/HitRecord.h
+        Classes/Material.cpp
+        Classes/Material.h)
 
 target_link_libraries(Black_Hole_Renderer PRIVATE SDL3::SDL3)

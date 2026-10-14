@@ -1,15 +1,16 @@
-#include <cfloat>
-#include <SDL3/SDL.h>
-#include <iostream>
 #include "Classes/Vec3.h"
-#include <vector>
-#include <cstdint>
 #include "Classes/Ray.h"
 #include "Classes/Camera.h"
 #include "Classes/Sphere.h"
 #include "Classes/Window.h"
 #include "Classes/HitRecord.h"
-#include <sys/time.h>
+#include "Classes/Material.h"
+#include <iostream>
+#include <ctime>
+#include <vector>
+#include <cstdint>
+#include <cfloat>
+#include <SDL3/SDL.h>
 
 // Main helper functions:
 
@@ -119,12 +120,7 @@ Vec3 trace_ray(const Ray& ray, const std::vector<Sphere>& sphere_container, cons
 
         double light_distance = (light_position - hit_record.get_hit_point()).get_length();
 
-        bool in_shadow;
-
-        if (shadow_hit_record.get_hit_status() && shadow_hit_record.get_t() < light_distance)
-            in_shadow = true;
-        else
-            in_shadow = false;
+        bool in_shadow = shadow_hit_record.get_hit_status() && shadow_hit_record.get_t() < light_distance;
 
         // init brightness to .15 (in shadow)
         double brightness = .15;
@@ -133,13 +129,11 @@ Vec3 trace_ray(const Ray& ray, const std::vector<Sphere>& sphere_container, cons
         if (!in_shadow)
             brightness = brightness + .85 * std::max(0.0, hit_record.get_normal().dot(light_direction));
 
-        uint32_t local_color = hit_record.get_hit_object()->get_color();
+        Material sphere_material = hit_record.get_hit_object()->get_material();
 
-        double reflectivity = 0.3; // temporary reflectivity value
+        Vec3 local_rgb = sphere_material.get_base_color() * brightness;
 
-        Vec3 local_rgb = get_normalized_color(local_color) * brightness;
-
-        if (depth == 0)
+        if (depth <= 0)
             return local_rgb;
 
         // get reflection ray component
@@ -152,7 +146,7 @@ Vec3 trace_ray(const Ray& ray, const std::vector<Sphere>& sphere_container, cons
 
         Vec3 reflection_color_vector = trace_ray(reflection_ray, sphere_container, light_position, depth - 1);
 
-        Vec3 final_rgb = local_rgb * (1 - reflectivity) + (reflection_color_vector * reflectivity);
+        Vec3 final_rgb = local_rgb * (1 - sphere_material.get_reflectivity()) + (reflection_color_vector * sphere_material.get_reflectivity());
 
         return final_rgb;
     }
@@ -166,8 +160,8 @@ Vec3 trace_ray(const Ray& ray, const std::vector<Sphere>& sphere_container, cons
 
 int main(int argc, char* argv[]) {
 
-    // start tracker for time calculations
-    struct timespec start, end;
+    // start trackers for time calculations
+    std::clock_t start, end;
 
     volatile long long sum = 0;
     long outer_limit = 10000;
@@ -179,8 +173,11 @@ int main(int argc, char* argv[]) {
 
     // currently testing multiple temporary spheres
 
-    Sphere sphere1(Vec3(-1,0,-4), 1, 0xFFFF0000);
-    Sphere sphere2(Vec3(2,1,-5), 1, 0xFF00FF00);
+    Material sphere1_material(.3, Vec3(1,0,0));
+    Sphere sphere1(Vec3(-1,0,-4), 1, sphere1_material);
+
+    Material sphere2_material(.7, Vec3(0,1,0));
+    Sphere sphere2(Vec3(2,1,-5), 1, sphere2_material);
 
     std::vector<Sphere> sphere_container {
         sphere1,
@@ -195,7 +192,7 @@ int main(int argc, char* argv[]) {
     std::vector<uint32_t> buffer_mem(WIDTH * HEIGHT);
 
     // start timer
-    clock_gettime(CLOCK_MONOTONIC, &start);
+    start = std::clock();
 
     // Render objects and gradient onto frame
     for (double y = 0; y < HEIGHT; y++) {
@@ -223,10 +220,9 @@ int main(int argc, char* argv[]) {
     }
 
     // end timer and calculate, then print to terminal
-    clock_gettime(CLOCK_MONOTONIC, &end);
+    end = std::clock();
 
-    double time_taken = (end.tv_sec - start.tv_sec) +
-                        (end.tv_nsec - start.tv_nsec) / 1e9;
+    double time_taken = static_cast<double>(end - start) / CLOCKS_PER_SEC;
 
     printf ("Image rendered in %lf seconds ", time_taken);
 
