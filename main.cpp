@@ -5,10 +5,10 @@
 #include "Classes/Window.h"
 #include "Classes/HitRecord.h"
 #include "Classes/Material.h"
+#include "Classes/Scene.h"
 #include <iostream>
 #include <ctime>
 #include <vector>
-#include <cstdint>
 #include <cfloat>
 #include <SDL3/SDL.h>
 
@@ -101,9 +101,12 @@ Vec3 get_background_color(const Vec3& direction) {
     return color_vector;
 }
 
-Vec3 trace_ray(const Ray& ray, const std::vector<Sphere>& sphere_container, const Vec3& light_position, int depth)
+Vec3 trace_ray(const Ray& ray, const Scene& scene, int depth)
 {
     Vec3 current_direction = ray.get_direction();
+
+    const std::vector<Sphere>& sphere_container = scene.get_sphere_container();
+    const Vec3& light_position = scene.get_light_position();
 
     HitRecord hit_record = find_closest_hit(ray, sphere_container);
 
@@ -144,7 +147,7 @@ Vec3 trace_ray(const Ray& ray, const std::vector<Sphere>& sphere_container, cons
         // init reflection ray
         Ray reflection_ray(reflection_origin, reflection_direction);
 
-        Vec3 reflection_color_vector = trace_ray(reflection_ray, sphere_container, light_position, depth - 1);
+        Vec3 reflection_color_vector = trace_ray(reflection_ray, scene, depth - 1);
 
         Vec3 final_rgb = local_rgb * (1 - sphere_material.get_reflectivity()) + (reflection_color_vector * sphere_material.get_reflectivity());
 
@@ -186,6 +189,8 @@ int main(int argc, char* argv[]) {
 
     Vec3 light_position(-4, -8, 0);
 
+    Scene scene(sphere_container, light_position);
+
     int depth = 3;
 
     // Allocate memory for pixel buffer
@@ -208,7 +213,7 @@ int main(int argc, char* argv[]) {
 
                 Ray current_ray = camera.get_ray_for_pixel(x + offset_x, y + offset_y);
 
-                color_sum = color_sum + trace_ray(current_ray, sphere_container, light_position, depth);
+                color_sum = color_sum + trace_ray(current_ray, scene, depth);
             }
 
             color_sum = color_sum / 4;

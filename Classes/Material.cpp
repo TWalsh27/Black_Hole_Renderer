@@ -8,6 +8,8 @@ Material::Material() :
 Material::Material(double reflectivity, Vec3 base_color) :
     reflectivity(reflectivity), base_color(base_color) {}
 
+// Getters -------------------
+
 double Material::get_reflectivity() const {
     return reflectivity;
 }
