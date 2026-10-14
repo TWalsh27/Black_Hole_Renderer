@@ -21,7 +21,7 @@ const Material& Sphere::get_material() const {
 
 // Methods ----------------------------------
 
-std::pair<double, double> Sphere::ray_sphere_intersection(const Ray& ray) const
+std::optional<std::pair<double, double>> Sphere::ray_sphere_intersection(const Ray& ray) const
 {
     // This function is used to find all real values t that satisfy the quadratic created
     // when checking for ray sphere intersection points along a given incident ray and sphere
@@ -51,8 +51,7 @@ std::pair<double, double> Sphere::ray_sphere_intersection(const Ray& ray) const
     double discriminant = quad_B * quad_B - (quad_A) * (quad_C);
 
     if (discriminant < 0)
-        return {-1, -1}; // magic numbers for now, will improve when I find
-    // a better way to implement this case
+        return std::nullopt; // told you I would fix it
 
     // Positive quadratic
     double t_val_1 = (-quad_B + sqrt(discriminant)) / quad_A;
@@ -60,6 +59,5 @@ std::pair<double, double> Sphere::ray_sphere_intersection(const Ray& ray) const
     // Negative quadratic
     double t_val_2 = (-quad_B - sqrt(discriminant)) / quad_A;
 
-    // Return t values (lazily, will improve later)
-    return {t_val_1, t_val_2};
+    return std::pair{t_val_1, t_val_2};
 }

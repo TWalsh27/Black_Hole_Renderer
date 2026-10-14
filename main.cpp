@@ -11,17 +11,23 @@
 #include <vector>
 #include <cfloat>
 #include <SDL3/SDL.h>
+#include <algorithm>
 
 // Main helper functions:
 
 // Takes in an RGB value and returns a unint32_t
 uint32_t get_pixel(const double r, const double g, const double b)
 {
+    // clamp RGB values for edge cases
+    const double clamped_r = std::clamp(r, 0.00, 1.00);
+    const double clamped_g = std::clamp(g, 0.00, 1.00);
+    const double clamped_b = std::clamp(b, 0.00, 1.00);
+
     // cast them to uint8_t
     uint8_t a = 255;
-    uint8_t casted_r = static_cast<uint8_t> (r * 255);
-    uint8_t casted_g = static_cast<uint8_t> (g * 255);
-    uint8_t casted_b = static_cast<uint8_t> (b * 255);
+    uint8_t casted_r = static_cast<uint8_t> (clamped_r * 255);
+    uint8_t casted_g = static_cast<uint8_t> (clamped_g * 255);
+    uint8_t casted_b = static_cast<uint8_t> (clamped_b * 255);
 
     // bit shift them into uint32 value
     uint32_t pixel = (a << 24) | (casted_r << 16) | (casted_g << 8) | casted_b;
@@ -58,13 +64,16 @@ HitRecord find_closest_hit(const Ray& test_ray, const std::vector<Sphere>& spher
     // loop over objects in scene to get closest sphere
     for (const Sphere& curr : sphere_container)
     {
-        std::pair<double, double> intersects = curr.ray_sphere_intersection(test_ray);
-        double chosen_intersect = get_closest_positive_t(intersects);
+        std::optional<std::pair<double, double>> intersects = curr.ray_sphere_intersection(test_ray);
 
-        if (chosen_intersect < closest_t && chosen_intersect > 0)
-        {
-            closest_t = chosen_intersect;
-            closest_sphere = &curr;
+        if (intersects) {
+            double chosen_intersect = get_closest_positive_t(intersects.value());
+
+            if (chosen_intersect < closest_t && chosen_intersect > 0)
+            {
+                closest_t = chosen_intersect;
+                closest_sphere = &curr;
+            }
         }
     }
 
@@ -136,7 +145,7 @@ Vec3 trace_ray(const Ray& ray, const Scene& scene, int depth)
 
         Vec3 local_rgb = sphere_material.get_base_color() * brightness;
 
-        if (depth <= 0)
+        if (depth <= 0 || sphere_material.get_reflectivity() == 0)
             return local_rgb;
 
         // get reflection ray component

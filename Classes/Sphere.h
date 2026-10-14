@@ -6,6 +6,7 @@
 #include "Material.h"
 #include <utility>
 #include <cmath>
+#include <optional>
 
 class Sphere {
 private:
@@ -20,7 +21,7 @@ public:
     double get_radius() const;
     const Material& get_material() const;
 
-    std::pair<double, double> ray_sphere_intersection(const Ray& ray) const;
+    std::optional<std::pair<double, double>> ray_sphere_intersection(const Ray& ray) const;
 };
 
 #endif //SPHERE_H
