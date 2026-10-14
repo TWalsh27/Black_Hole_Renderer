@@ -181,7 +181,7 @@ int main(int argc, char* argv[]) {
 
     const int WIDTH = 800, HEIGHT = 600;
 
-    Camera camera(Vec3(0,0,0), 800, 600, 90);
+    Camera camera(Vec3(0,0,0), 800, 600, 90, 90);
 
     // currently testing multiple temporary spheres
 

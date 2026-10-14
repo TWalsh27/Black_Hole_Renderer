@@ -13,10 +13,10 @@ private:
     const double viewport_height = 100;
     const double viewport_width = aspect_ratio * viewport_height;
     const double focal_length{};
-    const double fov = 90;
+    const double fov;
 
 public:
-    Camera(const Vec3& position, double image_width, double image_height, double focal_length);
+    Camera(const Vec3& position, double image_width, double image_height, double focal_length, double fov);
 
     // Getters -----------------------
 

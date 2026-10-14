@@ -4,8 +4,8 @@
 
 // Constructors ---------------------
 
-Camera::Camera(const Vec3& position, const double image_width, const double image_height, const double focal_length) :
-    position(position), image_width(image_width), image_height(image_height), focal_length(focal_length) {}
+Camera::Camera(const Vec3& position, const double image_width, const double image_height, const double focal_length, const double fov) :
+    position(position), image_width(image_width), image_height(image_height), focal_length(focal_length), fov(fov) {}
 
 // Methods ---------------------------
 
@@ -50,8 +50,8 @@ Ray Camera::get_ray_for_pixel(const double x, const double y) const {
     const double fov = get_fov();
 
     // get pixels to Normalized Device Coordinates using NDC formulas
-    const double ndc_x = (2 * x + 1) / width - 1;
-    const double ndc_y = 1 - (2 * y + 1) / height;
+    const double ndc_x = (2 * x) / width - 1;
+    const double ndc_y = 1 - (2 * y) / height;
 
     // get viewport x and y values from NDC values
     // viewport z set at -1 to account for being 1 unit away from the camera and looking down the z axis
