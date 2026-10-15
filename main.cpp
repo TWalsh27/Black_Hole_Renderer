@@ -15,7 +15,7 @@
 
 // Main helper functions:
 
-// Takes in an RGB value and returns a unint32_t
+// Takes in an RGB value and returns a uint32_t
 uint32_t get_pixel(const double r, const double g, const double b)
 {
     // clamp RGB values for edge cases
@@ -25,9 +25,9 @@ uint32_t get_pixel(const double r, const double g, const double b)
 
     // cast them to uint8_t
     uint8_t a = 255;
-    uint8_t casted_r = static_cast<uint8_t> (clamped_r * 255);
-    uint8_t casted_g = static_cast<uint8_t> (clamped_g * 255);
-    uint8_t casted_b = static_cast<uint8_t> (clamped_b * 255);
+    auto casted_r = static_cast<uint8_t> (clamped_r * 255);
+    auto casted_g = static_cast<uint8_t> (clamped_g * 255);
+    auto casted_b = static_cast<uint8_t> (clamped_b * 255);
 
     // bit shift them into uint32 value
     uint32_t pixel = (a << 24) | (casted_r << 16) | (casted_g << 8) | casted_b;
@@ -64,7 +64,7 @@ HitRecord find_closest_hit(const Ray& test_ray, const std::vector<Sphere>& spher
     // loop over objects in scene to get closest sphere
     for (const Sphere& curr : sphere_container)
     {
-        std::optional<std::pair<double, double>> intersects = curr.ray_sphere_intersection(test_ray);
+        auto intersects = curr.ray_sphere_intersection(test_ray);
 
         if (intersects) {
             double chosen_intersect = get_closest_positive_t(intersects.value());
@@ -175,21 +175,16 @@ int main(int argc, char* argv[]) {
     // start trackers for time calculations
     std::clock_t start, end;
 
-    volatile long long sum = 0;
-    long outer_limit = 10000;
-    long inner_limit = 50000;
-
-    const int WIDTH = 800, HEIGHT = 600;
+    constexpr int WIDTH = 800, HEIGHT = 600;
 
     Camera camera(Vec3(0,0,0), 800, 600, 90, 90);
 
     // currently testing multiple temporary spheres
-
     Material sphere1_material(.3, Vec3(1,0,0));
-    Sphere sphere1(Vec3(-1,0,-4), 1, sphere1_material);
+    Sphere sphere1(Vec3(0,1,-3), 1, sphere1_material);
 
     Material sphere2_material(.7, Vec3(0,1,0));
-    Sphere sphere2(Vec3(2,1,-5), 1, sphere2_material);
+    Sphere sphere2(Vec3(2,-1,-4), 1, sphere2_material);
 
     std::vector<Sphere> sphere_container {
         sphere1,
@@ -200,6 +195,7 @@ int main(int argc, char* argv[]) {
 
     Scene scene(sphere_container, light_position);
 
+    // initialize depth for recursive reflection limit
     int depth = 3;
 
     // Allocate memory for pixel buffer
@@ -209,8 +205,8 @@ int main(int argc, char* argv[]) {
     start = std::clock();
 
     // Render objects and gradient onto frame
-    for (double y = 0; y < HEIGHT; y++) {
-        for (double x = 0; x < WIDTH; x++) {
+    for (int y = 0; y < HEIGHT; y++) {
+        for (int x = 0; x < WIDTH; x++) {
             int index = y * WIDTH + x;
 
             Vec3 color_sum;
@@ -218,7 +214,7 @@ int main(int argc, char* argv[]) {
             for (int j = 0; j < 4; j++)
             {
                 double offset_x = 0.25 + 0.5 * (j % 2);
-                double offset_y = 0.25 + 0.5 * (j / 2);
+                double offset_y = 0.25 + 0.5 * (static_cast<double>(j) / 2);
 
                 Ray current_ray = camera.get_ray_for_pixel(x + offset_x, y + offset_y);
 
@@ -257,7 +253,8 @@ int main(int argc, char* argv[]) {
 
     SDL_Event event;
 
-    while (running) {
+    while (running)
+    {
         Test_Window.clear();
         SDL_RenderTexture(Test_Window.getRenderer(), texture, nullptr, nullptr);
         Test_Window.present();
@@ -267,6 +264,5 @@ int main(int argc, char* argv[]) {
                 running = false;
         }
     }
-
     return 0;
 }
