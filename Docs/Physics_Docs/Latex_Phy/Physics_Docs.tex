@@ -1,0 +1,277 @@
+
+\documentclass[12pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{geometry}
+
+\geometry{margin=1in}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\numberwithin{equation}{section}
+
+\title{Physics Documentation}
+\author{Thomas Walsh}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+The objective of this project is to develop a computational 
+model for rendering black holes.
+
+In particular, this document is intended to translate my 
+notes on relevant physical equations into a readable 
+document on GitHub.
+
+Additional documentation can be found within the 
+\texttt{/Docs} directory of the repository.
+
+\newpage
+
+\section{Mathematical Foundations}
+
+\subsection{Schwarzschild Radius and Null Geodesics}
+
+The Schwarzschild radius is defined as
+
+\begin{equation}
+    r_s = \frac{2GM}{c^2}
+    \label{eq:schwarzschild_radius}
+\end{equation}
+
+where $G$ is the gravitational constant, 
+$M$ is the mass of the black hole, and 
+$c$ is the speed of light.
+
+We introduce the reciprocal radial coordinate $u$, defined as
+
+\begin{equation}
+    u = \frac{1}{r}
+\end{equation}
+
+Using this substitution, the Schwarzschild null geodesic 
+orbit equation can be expressed in geometrized units 
+($G = c = 1$) as
+
+\begin{equation}
+    \frac{d^2u}{d\phi^2} + u = 3Mu^2
+    \label{eq:orbit}
+\end{equation}
+
+where $\phi$ is the angular coordinate in the plane of 
+the photon's trajectory. This equation assumes a 
+non-rotating, uncharged black hole and a photon with 
+nonzero angular momentum.
+
+\subsection{Flat Spacetime}
+
+With a mass of zero ($M = 0$), we get the simplified 
+equation
+
+\begin{equation}
+    u'' + u = 0
+\end{equation}
+
+\begin{equation}
+    u'' = -u
+\end{equation}
+
+In order to satisfy this equation, we use both sine and 
+cosine as independent solutions. Since the differential 
+equation is both linear and homogeneous, we take a linear 
+combination of our independent solutions.
+
+\begin{equation}
+    u(\phi) = A\cos(\phi) + B\sin(\phi)
+\end{equation}
+
+where $A$ and $B$ are arbitrary constants determined by 
+the initial state of the photon.
+
+Using the reciprocal radial coordinate and the 
+polar-to-Cartesian coordinate transformations, we obtain
+
+\begin{equation}
+    1 = Ar\cos(\phi) + Br\sin(\phi)
+\end{equation}
+
+\begin{equation}
+    Ax + By = 1
+\end{equation}
+
+This demonstrates that the photon follows a straight-line 
+trajectory in flat spacetime.
+
+\subsection{Characteristic Schwarzschild Quantities}
+
+In geometrized units ($G = c = 1$), equation 
+\eqref{eq:schwarzschild_radius} becomes
+
+\begin{equation}
+    r_s = 2M
+\end{equation}
+
+For this implementation, we normalize the mass of the 
+black hole to one ($M = 1$), giving us
+
+\begin{equation}
+    r_s = 2
+\end{equation}
+
+Next, we utilize known equations in Schwarzschild 
+spacetime to define
+
+\begin{gather}
+    \text{Event Horizon:} \quad r_s = 2M = 2 \\
+    \text{Photon Sphere:} \quad r_p = 3M = 3 \\
+    \text{Critical Impact Parameter:} \quad
+    b_c = 3\sqrt{3}M = 3\sqrt{3}
+\end{gather}
+
+The event horizon defines the boundary from within which 
+light cannot escape to infinity.
+
+The photon sphere defines the radius at which photons 
+can maintain unstable circular orbits.
+
+The critical impact parameter defines the threshold 
+between photon capture and escape for photons incoming 
+from infinity.
+
+\newpage
+
+\section{Numerical Methods}
+
+\subsection{Conversion to a First-Order ODE System}
+
+We begin by introducing new variables to reduce equation 
+\eqref{eq:orbit} into a system of first-order ordinary 
+differential equations.
+
+\begin{equation}
+    y_1 = u
+    \qquad
+    y_2 = \frac{du}{d\phi}
+\end{equation}
+
+From these definitions, we obtain
+
+\begin{equation}
+    \frac{dy_1}{d\phi} = y_2
+\end{equation}
+
+\begin{equation}
+    \frac{dy_2}{d\phi} = 3My_1^2 - y_1
+\end{equation}
+
+We can express this system using a state vector
+
+\begin{equation}
+    \mathbf{y} =
+    \begin{pmatrix}
+        y_1 \\
+        y_2
+    \end{pmatrix}
+\end{equation}
+
+giving us
+
+\begin{equation}
+    \frac{d\mathbf{y}}{d\phi}
+    =
+    \mathbf{f}(\mathbf{y})
+    =
+    \begin{pmatrix}
+        y_2 \\
+        3My_1^2 - y_1
+    \end{pmatrix}
+\end{equation}
+
+This is the first-order ODE system that will be 
+numerically integrated.
+
+\subsection{Fourth-Order Runge-Kutta (RK4)}
+
+The fourth-order Runge-Kutta method approximates the 
+solution of a differential equation by evaluating its 
+derivative at four stages within a given step. These 
+evaluations are then combined using a weighted average 
+to approximate the next state of the system.
+
+Let $h = \Delta\phi$ denote the angular step size.
+
+\begin{equation}
+    \mathbf{y}_{n+1} =
+    \mathbf{y}_n +
+    \frac{h}{6}
+    (\mathbf{k}_1 + 2\mathbf{k}_2 +
+    2\mathbf{k}_3 + \mathbf{k}_4)
+\end{equation}
+
+The $\mathbf{k}$ terms are defined as
+
+\begin{gather}
+    \mathbf{k}_1 =
+    \mathbf{f}(\mathbf{y}_n) \\
+    \mathbf{k}_2 =
+    \mathbf{f}\left(
+        \mathbf{y}_n + \frac{h}{2}\mathbf{k}_1
+    \right) \\
+    \mathbf{k}_3 =
+    \mathbf{f}\left(
+        \mathbf{y}_n + \frac{h}{2}\mathbf{k}_2
+    \right) \\
+    \mathbf{k}_4 =
+    \mathbf{f}\left(
+        \mathbf{y}_n + h\mathbf{k}_3
+    \right)
+\end{gather}
+
+We also advance our angular coordinate
+
+\begin{equation}
+    \phi_{n+1} = \phi_n + h
+\end{equation}
+
+\subsection{Justification}
+
+It is important to note that there are several numerical 
+methods that we could have chosen to work with in 
+Section 3.2. However, methods such as Euler's method 
+and second-order Runge-Kutta (RK2) generally provide 
+lower accuracy than RK4 for sufficiently small step 
+sizes.
+
+Under suitable smoothness conditions, the global 
+truncation errors of these methods are
+
+\begin{gather}
+    \text{Euler's Method:} \quad O(h) \\
+    \text{RK2:} \quad O(h^2) \\
+    \text{RK4:} \quad O(h^4)
+\end{gather}
+
+RK4 provides a balance between computational cost and 
+numerical accuracy. However, the angular step size must 
+still be chosen carefully to maintain numerical accuracy 
+and stability, particularly for trajectories near the 
+critical impact parameter.
+
+\newpage
+
+\section{Numerical Results}
+
+\newpage
+
+\section{Integration with Ray Tracer}
+
+\end{document}

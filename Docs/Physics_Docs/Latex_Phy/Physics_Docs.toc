@@ -1,0 +1,11 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{}%
+\contentsline {section}{\numberline {2}Mathematical Foundations}{3}{}%
+\contentsline {subsection}{\numberline {2.1}Schwarzschild Radius and Null Geodesics}{3}{}%
+\contentsline {subsection}{\numberline {2.2}Flat Spacetime}{3}{}%
+\contentsline {subsection}{\numberline {2.3}Characteristic Schwarzschild Quantities}{4}{}%
+\contentsline {section}{\numberline {3}Numerical Methods}{5}{}%
+\contentsline {subsection}{\numberline {3.1}Conversion to a First-Order ODE System}{5}{}%
+\contentsline {subsection}{\numberline {3.2}Fourth-Order Runge-Kutta (RK4)}{5}{}%
+\contentsline {subsection}{\numberline {3.3}Justification}{6}{}%
+\contentsline {section}{\numberline {4}Numerical Results}{7}{}%
+\contentsline {section}{\numberline {5}Integration with Ray Tracer}{8}{}%
